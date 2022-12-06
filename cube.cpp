@@ -1,8 +1,10 @@
 #include "cube.h"
 
-Cube::Cube(float s_width)
+
+Cube::Cube(float s_width) 
     //: //texture("Assets/container2.png")
 {
+    mass = 20;
     sideLength = s_width; // <-- Can you be less confusing?? Lol
     float half_side = sideLength/2;
     float vertices[] = {
@@ -87,6 +89,13 @@ Cube::Cube(float s_width)
     vao.init_EBO(nIndices, 36);
     position = glm::vec3(0, 0, 0);
 }   
+
+void Cube::applyGravity(float dt)
+{
+    yVelocity = yVelocity + Gravity()*dt;
+    position.y += yVelocity * dt;
+    model = glm::translate(glm::mat4(1.0f), position);
+}
 
 void Cube::bind_vao()
 {
