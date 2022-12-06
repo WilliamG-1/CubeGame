@@ -3,7 +3,7 @@
 bool gameRunning = true;
 Game::Game()
     :
-    window("Cube Game", 800, 600), camera(45.0f, 800.0f, 600.0f, 0.1f, 100.0f), cube(1.0f)
+    window("Cube Game", 800, 600), camera(45.0f, 800.0f, 600.0f, 0.1f, 100.0f), cube(1.0f), cube2(10.0f)
 {
     glEnable(GL_DEPTH_TEST);
     shader.init_shaders("shaders/lightVertex.vert", "shaders/lightFragment.frag");
@@ -25,7 +25,8 @@ void Game::initKeyCallbacks()
 }
 void Game::composeFrame()
 {
-    Transformations::translate3D(cube, 0, 2, 0);
+    Transformations::translate3D(cube, 0, 50, 0);
+    Transformations::translate3D(cube2, 0, 40, 0);
     for (int i = 0; i < 11; i++)
     {
         for (int j = 0; j < 11; j++)
@@ -46,11 +47,17 @@ void Game::run()
         processInput();
 
         shader.setUniformMat4f("u_ViewProjection", camera.get_projection_view_matrix());
-        for (Cube& c : floor)
-        {
-            renderer.draw3D(shader, c, Color(0.3f, 0.15f, 0.26f, 1.0f));
-        }
+        // for (Cube& c : floor)
+        // {
+        //     renderer.draw3D(shader, c, Color(0.3f, 0.15f, 0.26f, 1.0f));
+        // }
+        if (cube.get_position_vector().y > 1)
+            cube.applyGravity(deltaTime.dt);
         renderer.draw3D(shader, cube);
+        
+        if (cube2.get_position_vector().y > 0)
+            cube2.applyGravity(deltaTime.dt);
+        renderer.draw3D(shader, cube2);
 
         std::printf("Camera Position: {%.2f, %.2f, %.2f}\n", camera.get_position().x, camera.get_position().y, camera.get_position().z);
         updateDT();

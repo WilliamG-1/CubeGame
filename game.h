@@ -9,7 +9,7 @@
 #include "texture.h"
 #include "cube.h"
 #include "transformations.h"
-
+#include "shape3D.h"
 class Game 
 {
 public:
@@ -22,8 +22,10 @@ private:
     Renderer renderer;
     PerspectiveCamera camera;
     Cube cube;
+    Cube cube2;
     DeltaTime deltaTime;
     std::vector<Cube> floor;
+    
     float dt = 0;
     
     void composeFrame();
