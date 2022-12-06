@@ -18,6 +18,7 @@ void Renderer::draw2D(Shader& shader, Shape2D& Shape2D)
 void Renderer::draw3D(Shader& shader, Shape3D& shape, Material material)
 {
     shader.use_shader();
+
     shader.setUniformMat4f("u_Model", shape.get_model_matrix());
 
     shader.setUniformVec3fv("u_Material.ambient", material.ambient);
