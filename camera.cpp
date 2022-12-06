@@ -6,7 +6,7 @@ PerspectiveCamera::PerspectiveCamera(float fov, float screen_width, float screen
     :
     projection(1.0f), view(1.0f), projectionView(1.0f)
 {
-    position = glm::vec3(1.3f, 1.8f, 4.0f);
+    position = glm::vec3(0, 5, 40);
     focus = glm::vec3(0.0f, 0.0f, 0.0f);
 
     euler_angle(phi, theta); // Starting angle (Straight forwards)

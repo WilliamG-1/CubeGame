@@ -31,8 +31,8 @@ public:
 private:
     float velocity = 10;    // Camera speed
     float pan_speed = 90;   
-    float phi = 95;
-    float theta = 115;
+    float phi = 90;
+    float theta = 90;
 
     glm::mat4 projection;
     glm::mat4 view;
