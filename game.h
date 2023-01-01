@@ -10,6 +10,8 @@
 #include "cube.h"
 #include "transformations.h"
 #include "shape3D.h"
+#include "collisions.h"
+
 class Game 
 {
 public:
@@ -23,13 +25,19 @@ private:
     PerspectiveCamera camera;
     Cube cube;
     Cube cube2;
+    Cube center;
     DeltaTime deltaTime;
     std::vector<Cube> floor;
-    
+    std::vector<Cube> randomCubes;
     float dt = 0;
     
     void composeFrame();
     void processInput();
     void initKeyCallbacks();
     void updateDT();
+
+    // Colors lol
+    Color Red;
+    Color Green;
+    Color Blue;
 };

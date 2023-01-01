@@ -31,6 +31,7 @@ public:
     void draw2D(Shader& shader, Shape2D& shape);
     void draw3D(Shader& shader, Shape3D& shape, Material material);
     void draw3D(Shader& shader, Shape3D& shape, Color color = Color());
+
 private:
 
 };

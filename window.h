@@ -2,11 +2,23 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-struct DeltaTime
+class DeltaTime
 {
-    float last;
-    float current;
-    float dt;
+public:
+   void updateDT()
+   {
+        last = current;
+        current = glfwGetTime();
+        dt = current - last;
+   }
+   const float& getDT() const {return dt;}
+   const void printDeltaTime() { std::printf("Delta Time: %.2f\n", dt);}
+   const void printFPS() { std::printf("FPS: %.1f\n", 1/dt);}
+
+private:
+    float last = 0;
+    float current = 0;
+    float dt = 0;
 };
 
 class Window

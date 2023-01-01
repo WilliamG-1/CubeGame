@@ -11,7 +11,11 @@ public:
     
     void bind_vao();
     void applyGravity(float dt);
+    void update();
+    
+    AABB& get_collision_box() {return CollisionBox; }
 private:
     //Texture texture;
+    AABB CollisionBox;
     float sideLength;
 };

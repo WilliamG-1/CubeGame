@@ -17,8 +17,10 @@ void Transformations::scale(glm::mat4& model, Shape2D& shape, float width, float
 
 void Transformations::translate3D(Shape3D& shape, float xTranslate, float yTranslate, float zTranslate)
 {
+    
     shape.get_model_matrix() = glm::translate(shape.get_model_matrix(), glm::vec3(xTranslate, yTranslate, zTranslate));
     shape.get_position_vector() += glm::vec3(xTranslate, yTranslate, zTranslate);
+    shape.update();
 }
 
 void Transformations::rotate3D(Shape3D& shape, float xRotation, float yRotation, float zRotation, glm::vec3 axes)
