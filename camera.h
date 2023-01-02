@@ -11,7 +11,11 @@ enum class CameraDirection
     UP = 4,
     DOWN = 5
 };
-
+/*  Note: =============
+->    Positive X is Right   <-
+->    Positive Y is Up      <-
+->    Positive Z is Back    <-
+*/ 
 class PerspectiveCamera
 {
 public:
@@ -29,6 +33,7 @@ public:
     glm::vec3 get_focus() const {return position + front;}
     glm::mat4 get_projection_view_matrix() {return projectionView;}
 private:
+    glm::vec3 startingPosition = {0, 20, 20}; // X Y Z
     float velocity = 10;    // Camera speed
     float pan_speed = 90;   
     float phi = 90;
