@@ -27,6 +27,7 @@ private:
     Cube cube2;
     Cube center;
     DeltaTime deltaTime;
+    std::vector<Cube> startingPlatform;
     std::vector<Cube> floor;
     std::vector<Cube> randomCubes;
     float dt = 0;
