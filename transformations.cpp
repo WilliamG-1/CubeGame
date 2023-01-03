@@ -20,7 +20,7 @@ void Transformations::translate3D(Shape3D& shape, float xTranslate, float yTrans
     
     shape.get_model_matrix() = glm::translate(shape.get_model_matrix(), glm::vec3(xTranslate, yTranslate, zTranslate));
     shape.get_position_vector() += glm::vec3(xTranslate, yTranslate, zTranslate);
-    shape.update();
+    shape.update_collision_box();
 }
 
 void Transformations::rotate3D(Shape3D& shape, float xRotation, float yRotation, float zRotation, glm::vec3 axes)
