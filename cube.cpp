@@ -4,7 +4,10 @@
 Cube::Cube(float s_width) 
     //: //texture("Assets/container2.png")
 {
-    mass = 20;
+    mass = 20; // (kilograms)
+    normal = mass * Gravity();
+    friction_coefficient = 0.1;
+
     sideLength = s_width; // <-- Can you be less confusing?? Lol
     float half_side = sideLength/2;
     for (int i = 0; i < 3; i++)
@@ -103,7 +106,54 @@ void Cube::applyGravity(float dt)
     CollisionBox.center = position;
 }
 
-void Cube::update()
+void Cube::move(float dx, float dy, float dz, float dt)
+{
+    if (dx > 0) pushing_right = true;
+    if (dx < 0) pushing_left = true;
+    force.x += dx * dt * 50; 
+    force.z += dz * dt * 50; 
+    
+}
+
+void Cube::update_horizontal_movement(float dt)
+{ 
+    if (force.x < 0 && !pushing_left) force.x = 0;
+    if (force.x > 0 && !pushing_right) force.x = 0;
+
+    if (velocity.x > 0) // If velocity is positive
+        kinetic_force = mass * normal * friction_coefficient;
+
+    else if (velocity.x < 0)
+        kinetic_force = mass * normal * friction_coefficient * -1;
+    
+    std::printf("Kinetic Force: %.2f ", kinetic_force);
+    if (force.x >= 700) force.x = 700; else if (force.x <= -700) force.x = -700; 
+    if (abs( kinetic_force ) > abs(force.x)) kinetic_force = force.x * -1;
+    float force_x = force.x + kinetic_force;
+    std::printf("Force: %.2f ", force_x);
+    acceleration.x = force_x / mass;
+    
+    velocity.x += acceleration.x * dt; if (velocity.x > 7) velocity.x = 7; else if (velocity.x < -7) velocity.x = -7;
+    
+
+    if (velocity.z > 0) // If Velocity is positive
+        force.z -= mass * normal * friction_coefficient;
+
+    if (velocity.z < 0)
+        force.z += mass * normal * friction_coefficient;
+
+    if (force.z >= 700) force.z = 700; else if (force.z <= -700) force.z = -700; // Cap the force to 700 or -700
+    acceleration.z = force.z / mass;
+    velocity.z += acceleration.z * dt; if (velocity.z > 7) velocity.z = 7; else if (velocity.z < -7) velocity.z = -7;
+    
+
+    position += glm::vec3(velocity.x * dt,  0, velocity.z * dt);
+    model = glm::translate(model, position);
+    update_collision_box();
+
+}
+
+void Cube::update_collision_box()
 {   
     CollisionBox.center = position;
 }
