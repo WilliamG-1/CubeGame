@@ -6,33 +6,13 @@ Cube::Cube(float s_width)
 {
     mass = 20; // (kilograms)
     normal = mass * Gravity();
-    friction_coefficient = 0.1;
-
+    friction_coefficient = 0.05;
+    max_velocity = 10;
     sideLength = s_width; // <-- Can you be less confusing?? Lol
     float half_side = sideLength/2;
     for (int i = 0; i < 3; i++)
         CollisionBox.r[i] = half_side; // Set all radii to half_side 
     
-    // float vertices[] = {
-    //     // Front face                      // Normal
-    //     -half_side, -half_side, half_side, 0, 0, 0, // Bottom Left  (0)
-    //     -half_side,  half_side, half_side, 0, 0, 0, // Top Left     (1)
-    //      half_side, -half_side, half_side, 0, 0, 0, // Bottom Right (2)
-    //      half_side,  half_side, half_side, 0, 0, 0, // Top Right    (3)
-
-    //      // Back Face 
-    //     -half_side, -half_side, -half_side, 0, 0, 0, // Bottom Left  (4)
-    //     -half_side,  half_side, -half_side, 0, 0, 0, // Top Left     (5)
-    //      half_side, -half_side, -half_side, 0, 0, 0, // Bottom Right (6)
-    //      half_side,  half_side, -half_side, 0, 0, 0,  // Top Right    (7)
-
-    //       half_side, 0.0f, 0.0f           ,  1.0f, 0, 0,
-    //      -half_side, 0.0f, 0.0f           , -1.0f, 0, 0,
-    //      0.0f,  half_side, 0.0f           , 0,  1.0f, 0,
-    //      0.0f, -half_side, 0.0f           , 0, -1.0f, 0,
-    //      0.0f, 0.0f,  half_side           , 0, 0,  1.0f,
-    //      0.0f, 0.0f, -half_side           , 0, 0, -1.0f
-    // };
     float nVertices[] {
         // Front Face                      Normal Vector        Texture Coordinates
         -half_side, -half_side, half_side, 0.0f, 0.0f,  1.0f,   0.0f, 0.0f,          // (0)
@@ -72,14 +52,6 @@ Cube::Cube(float s_width)
 
     };
 
-    // unsigned int indices[] = {
-    //     0, 1, 2,   1, 2, 3, // Front Face
-    //     3, 2, 6,   3, 7, 6, // Right Face
-    //     4, 5, 6,   5, 6, 7, // Back Face
-    //     1, 5, 4,   0, 1, 4, // Left Face
-    //     1, 3, 5,   3, 5, 7, // Top Face
-    //     0, 2, 4,   2, 4, 6  // Bottom Face
-    // };
     unsigned int nIndices[] = {
         0,  1,  3,     0,  2,  3,
         4,  5,  6,     5,  6,  7,
@@ -110,9 +82,13 @@ void Cube::move(float dx, float dy, float dz, float dt)
 {
     if (dx > 0) pushing_right = true;
     if (dx < 0) pushing_left = true;
-    force.x += dx * dt * 50; 
-    force.z += dz * dt * 50; 
-    
+    if (dz > 0) pushing_down = true;
+    if (dz < 0) pushing_up = true;
+
+    force.x += dx * dt * 120; 
+    force.z += dz * dt * 120; 
+    // Note: force.(a) is the force applied to the cube in the respective direction
+    //       force_a is the actual force being applied once the static kinetic friction has been overcome, which produces an acceleration
 }
 
 void Cube::update_horizontal_movement(float dt)
@@ -120,37 +96,78 @@ void Cube::update_horizontal_movement(float dt)
     if (force.x < 0 && !pushing_left) force.x = 0;
     if (force.x > 0 && !pushing_right) force.x = 0;
 
-    if (velocity.x > 0) // If velocity is positive
-        kinetic_force = mass * normal * friction_coefficient;
+    if (velocity.x > 0) // If velocity is positive (Note that gravity is negative, so kinetic_force is already going against our velocity)
+        kinetic_force[0] = mass * normal * friction_coefficient; // Kinetic force is force applied against our velocity
 
     else if (velocity.x < 0)
-        kinetic_force = mass * normal * friction_coefficient * -1;
-    
-    std::printf("Kinetic Force: %.2f ", kinetic_force);
+        kinetic_force[0] = mass * normal * friction_coefficient * -1;
+
+    else kinetic_force[0] = 0;
+    std::printf("Kinetic Force(X): %.2f ", kinetic_force[0]);
+
     if (force.x >= 700) force.x = 700; else if (force.x <= -700) force.x = -700; 
-    if (abs( kinetic_force ) > abs(force.x)) kinetic_force = force.x * -1;
-    float force_x = force.x + kinetic_force;
-    std::printf("Force: %.2f ", force_x);
-    acceleration.x = force_x / mass;
-    
-    velocity.x += acceleration.x * dt; if (velocity.x > 7) velocity.x = 7; else if (velocity.x < -7) velocity.x = -7;
-    
 
-    if (velocity.z > 0) // If Velocity is positive
-        force.z -= mass * normal * friction_coefficient;
+    // force_x represents the force being applied after the static friction has been surpassed. Thus, force_x will subtract itself, which will be 0 until force.x is greater than the
+    // static friction force
+    float force_x = force.x - (std::min(abs(kinetic_force[0]), abs(force.x))) * get_sign(force.x);
 
-    if (velocity.z < 0)
-        force.z += mass * normal * friction_coefficient;
+    // If there is no force being applied on the cube (No input), but the cube is moving, then the net force applied will be equal to the kinetic friction. This 
+    // means that the force will be applied against our velocity, causing a gradual deceleration to simulate friction;
+    if (force.x == 0 && velocity.x != 0)
+        force_x = kinetic_force[0];
 
-    if (force.z >= 700) force.z = 700; else if (force.z <= -700) force.z = -700; // Cap the force to 700 or -700
-    acceleration.z = force.z / mass;
-    velocity.z += acceleration.z * dt; if (velocity.z > 7) velocity.z = 7; else if (velocity.z < -7) velocity.z = -7;
-    
+    std::printf("Force(X): %.2f ", force_x);
+    acceleration.x = force_x / mass; // Using the resulting force, calculate the acceleration
 
-    position += glm::vec3(velocity.x * dt,  0, velocity.z * dt);
+    // Increment velocity using velocity acceleration kinematic equation
+    velocity.x += acceleration.x * dt; 
+    // Cap the velocity to max_velocity value
+    if (velocity.x > max_velocity) velocity.x = max_velocity; else if (velocity.x < -max_velocity) velocity.x = -max_velocity;
+
+    // If velocity falls betwen this range, then halt movement completely to avoid velocity oscillating from positive to negative
+    if (velocity.x <= 0.25 && velocity.x >= -0.25) velocity.x = 0;
+
+    position += glm::vec3(velocity.x * dt,  0, 0);
     model = glm::translate(model, position);
     update_collision_box();
 
+}
+
+void Cube::update_vertical_movement(float dt)
+{
+    if (force.z < 0 && !pushing_up) force.z = 0;
+    if (force.z > 0 && !pushing_down) force.z = 0;
+
+    if (velocity.z > 0) 
+        kinetic_force[1] = mass * normal * friction_coefficient;   // Kinetic force is force applied against our velocity
+    else if (velocity.z < 0)
+        kinetic_force[1] = mass * normal * friction_coefficient * -1;
+    else 
+        kinetic_force[1] = 0;
+
+    std::printf("Kinetic Force(Z): %.2f ", kinetic_force[1]);
+
+    if (force.z >= 700) force.z = 700; else if (force.z <= -700) force.z = -700;
+    float force_z = force.z - (std::min(abs(kinetic_force[1]), abs(force.z))) * get_sign(force_z);
+
+    if (force.z == 0 && velocity.z != 0)
+        force_z = kinetic_force[1];
+    std::printf("Force(Z): %.2f ", force_z);
+
+    acceleration.z = force_z / mass;
+
+    velocity.z += acceleration.z * dt;
+    
+    // Clamp maximum velocity value
+    if (velocity.z > max_velocity) velocity.z = max_velocity; else if (velocity.z < -max_velocity) velocity.z = -max_velocity;
+
+    // If velocity falls betwen this range, then halt movement completely to avoid velocity oscillating from positive to negative
+    if (velocity.z <= 0.25 && velocity.z >= -0.25) velocity.z = 0;
+
+    
+    position += glm::vec3(0,  0, velocity.z * dt);
+    model = glm::translate(model, position);
+    update_collision_box();
 }
 
 void Cube::update_collision_box()

@@ -23,6 +23,9 @@ public:
     void cancel_x_force() { force.x = 0; }
     void cancel_y_velocity() { velocity.y = 0; }
     void cancel_z_force() { force.z = 0; }
+    int get_sign(float number){
+        return (number < 0) ? -1 : 1; // Return negative if number below 0, positive otherwise
+    }
     virtual void not_applying_left_force() = 0;
     virtual void not_applying_right_force() = 0;
 
@@ -40,10 +43,14 @@ protected:
     float z;
     float mass = 0;
     float friction_coefficient = 0;
-    float kinetic_force = 0;
+    glm::vec2 kinetic_force = {0, 0};
     float normal = 0;
+    float max_velocity;
+    // Movement Booleans
     bool pushing_left = false;
     bool pushing_right = false;
+    bool pushing_up = false;
+    bool pushing_down = false;
 private:
     float gravity = -9.8f;
 };
