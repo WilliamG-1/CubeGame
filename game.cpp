@@ -42,7 +42,7 @@ void Game::composeFrame()
     // }
     // Initialize Starting Platform
     int length = 90;
-    int width = 30;
+    int width = 60;
     
     for (int i = 0; i < length; i++)
     {
