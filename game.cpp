@@ -41,8 +41,8 @@ void Game::composeFrame()
     //     }
     // }
     // Initialize Starting Platform
-    int length = 40;
-    int width = 40;
+    int length = 90;
+    int width = 30;
     
     for (int i = 0; i < length; i++)
     {
@@ -75,6 +75,7 @@ void Game::run()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         processInput();
         cube.update_horizontal_movement(deltaTime.getDT());
+        cube.update_vertical_movement(deltaTime.getDT());
         shader.setUniformMat4f("u_ViewProjection", camera.get_projection_view_matrix());
 
         // Do Horizontal Collisions First
@@ -206,6 +207,8 @@ void Game::processInput()
 
     cube.not_applying_left_force();
     cube.not_applying_right_force();
+    cube.not_applying_up_force();
+    cube.not_applying_down_force();
     
     if (glfwGetKey(window.getWindow(), GLFW_KEY_L) == GLFW_PRESS)
         cube.move(1, 0, 0, deltaTime.getDT());
